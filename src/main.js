@@ -177,6 +177,11 @@ ui.stopCamera.addEventListener("click", async () => {
     processorEnabled = false;
     ui.vbCost.textContent = "0";
 
+    if (processor) {
+      await processor.release();
+      processor = null;
+    }
+
     const player = document.getElementById("local-player");
     player.innerHTML = "";
 
