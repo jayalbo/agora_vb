@@ -16,7 +16,6 @@ Simple customer-facing demo for local camera preview with Agora Virtual Backgrou
 1. Install dependencies:
 
 ```bash
-cd demo
 npm install
 ```
 
