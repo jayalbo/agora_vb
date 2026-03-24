@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agora Virtual Background Demo</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <h1>Agora Virtual Background Demo</h1>
+      <p class="hint">Simple local preview demo with start/stop processor and cost tracking.</p>
+
+      <section class="controls">
+        <button id="start-camera">Start Camera</button>
+        <button id="apply-blur" disabled>Apply Blur</button>
+        <button id="apply-image" disabled>Apply Image BG</button>
+        <button id="clear-effect" disabled>Clear Effect</button>
+        <button id="stop-processor" disabled>Stop Processor</button>
+        <button id="resume-processor" disabled>Resume Processor</button>
+        <button id="stop-camera" disabled>Stop Camera</button>
+      </section>
+
+      <section class="status">
+        <div><strong>Processor:</strong> <span id="processor-state">idle</span></div>
+        <div><strong>VB Cost:</strong> <span id="vb-cost">n/a</span></div>
+      </section>
+
+      <section>
+        <div id="local-player" class="player"></div>
+      </section>
+
+      <section>
+        <h2>Logs</h2>
+        <pre id="logs" class="logs"></pre>
+      </section>
+    </main>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
