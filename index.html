@@ -10,12 +10,28 @@
   <body>
     <main class="app">
       <h1>Agora Virtual Background Demo</h1>
-      <p class="hint">Simple local preview demo with start/stop processor and cost tracking.</p>
+      <p class="hint">
+        Simple local preview demo with start/stop processor and cost tracking.
+        <strong>Preview fit</strong> scales the whole picture in the player; <strong>VB background fit</strong> scales
+        only the virtual background (blur or image) inside the frame—see
+        <a href="https://docs.agora.io/en/video-calling/advanced-features/virtual-background?platform=web">Virtual Background (Web)</a>.
+      </p>
 
       <section class="controls">
         <label class="fit-field">
-          <span>Video fit</span>
-          <select id="video-fit" title="How the local preview fills the player (object-fit)">
+          <span>Preview fit</span>
+          <select id="preview-fit" title="How the full video frame is shown in the player (SDK VideoPlayerConfig.fit)">
+            <option value="cover" selected>Cover</option>
+            <option value="contain">Contain</option>
+            <option value="fill">Fill</option>
+          </select>
+        </label>
+        <label class="fit-field">
+          <span>VB background fit</span>
+          <select
+            id="vb-background-fit"
+            title="How the virtual background fills the camera frame (extension setOptions fit)"
+          >
             <option value="cover" selected>Cover</option>
             <option value="contain">Contain</option>
             <option value="fill">Fill</option>

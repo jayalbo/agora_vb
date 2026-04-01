@@ -2,7 +2,8 @@ import AgoraRTC from "agora-rtc-sdk-ng";
 import VirtualBackgroundExtension from "agora-extension-virtual-background";
 
 const ui = {
-  videoFit: document.getElementById("video-fit"),
+  previewFit: document.getElementById("preview-fit"),
+  vbBackgroundFit: document.getElementById("vb-background-fit"),
   startCamera: document.getElementById("start-camera"),
   applyBlur: document.getElementById("apply-blur"),
   applyImage: document.getElementById("apply-image"),
@@ -15,16 +16,46 @@ const ui = {
   logs: document.getElementById("logs")
 };
 
-/** @type {() => "cover" | "contain" | "fill"} */
-function getSelectedFit() {
-  const v = ui.videoFit.value;
+/** @type {(el: HTMLSelectElement) => "cover" | "contain" | "fill"} */
+function readFitSelect(el) {
+  const v = el.value;
   if (v === "contain" || v === "fill") return v;
   return "cover";
 }
 
+function getPreviewFit() {
+  return readFitSelect(ui.previewFit);
+}
+
+function getVbBackgroundFit() {
+  return readFitSelect(ui.vbBackgroundFit);
+}
+
 function playLocalPreview() {
   if (!localVideoTrack) return;
-  localVideoTrack.play("local-player", { fit: getSelectedFit() });
+  localVideoTrack.play("local-player", { fit: getPreviewFit() });
+}
+
+/** Last VB effect so we can change background fit without re-picking blur/image. */
+let vbEffect = /** @type {{ kind: "none" } | { kind: "blur"; blurDegree: number } | { kind: "img"; source: HTMLImageElement }} */ (
+  { kind: "none" }
+);
+
+async function reapplyVbEffectOptions() {
+  if (!processor || !processorEnabled) return;
+  if (vbEffect.kind === "blur") {
+    await processor.setOptions({
+      type: "blur",
+      blurDegree: vbEffect.blurDegree,
+      fit: getVbBackgroundFit()
+    });
+  } else if (vbEffect.kind === "img") {
+    await processor.setOptions({
+      type: "img",
+      source: vbEffect.source,
+      fit: getVbBackgroundFit()
+    });
+  }
 }
 
 const extension = new VirtualBackgroundExtension();
@@ -109,9 +140,11 @@ ui.applyBlur.addEventListener("click", async () => {
   try {
     if (!localVideoTrack) return;
     await ensureProcessorEnabled();
+    vbEffect = { kind: "blur", blurDegree: 2 };
     await processor.setOptions({
       type: "blur",
-      blurDegree: 2
+      blurDegree: 2,
+      fit: getVbBackgroundFit()
     });
     log("Blur effect applied");
   } catch (err) {
@@ -128,9 +161,11 @@ ui.applyImage.addEventListener("click", async () => {
     image.src =
       "https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=1280&q=80";
     await image.decode();
+    vbEffect = { kind: "img", source: image };
     await processor.setOptions({
       type: "img",
-      source: image
+      source: image,
+      fit: getVbBackgroundFit()
     });
     log("Image background effect applied");
   } catch (err) {
@@ -142,6 +177,7 @@ ui.clearEffect.addEventListener("click", async () => {
   try {
     if (!localVideoTrack) return;
     await ensureProcessorEnabled();
+    vbEffect = { kind: "none" };
     await processor.setOptions({ type: "none" });
     log("Effect cleared");
   } catch (err) {
@@ -188,6 +224,7 @@ ui.stopCamera.addEventListener("click", async () => {
     localVideoTrack.close();
     localVideoTrack = null;
     processorEnabled = false;
+    vbEffect = { kind: "none" };
     ui.vbCost.textContent = "0";
 
     if (processor) {
@@ -205,10 +242,21 @@ ui.stopCamera.addEventListener("click", async () => {
   }
 });
 
-ui.videoFit.addEventListener("change", () => {
+ui.previewFit.addEventListener("change", () => {
   playLocalPreview();
   if (localVideoTrack) {
-    log(`Video fit: ${getSelectedFit()}`);
+    log(`Preview fit: ${getPreviewFit()}`);
+  }
+});
+
+ui.vbBackgroundFit.addEventListener("change", async () => {
+  try {
+    await reapplyVbEffectOptions();
+    if (processorEnabled && (vbEffect.kind === "blur" || vbEffect.kind === "img")) {
+      log(`VB background fit: ${getVbBackgroundFit()}`);
+    }
+  } catch (err) {
+    log(`Failed to update VB background fit: ${err.message || err}`);
   }
 });
 
