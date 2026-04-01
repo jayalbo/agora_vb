@@ -13,6 +13,14 @@
       <p class="hint">Simple local preview demo with start/stop processor and cost tracking.</p>
 
       <section class="controls">
+        <label class="fit-field">
+          <span>Video fit</span>
+          <select id="video-fit" title="How the local preview fills the player (object-fit)">
+            <option value="cover" selected>Cover</option>
+            <option value="contain">Contain</option>
+            <option value="fill">Fill</option>
+          </select>
+        </label>
         <button id="start-camera">Start Camera</button>
         <button id="apply-blur" disabled>Apply Blur</button>
         <button id="apply-image" disabled>Apply Image BG</button>

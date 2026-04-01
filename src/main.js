@@ -2,6 +2,7 @@ import AgoraRTC from "agora-rtc-sdk-ng";
 import VirtualBackgroundExtension from "agora-extension-virtual-background";
 
 const ui = {
+  videoFit: document.getElementById("video-fit"),
   startCamera: document.getElementById("start-camera"),
   applyBlur: document.getElementById("apply-blur"),
   applyImage: document.getElementById("apply-image"),
@@ -13,6 +14,18 @@ const ui = {
   vbCost: document.getElementById("vb-cost"),
   logs: document.getElementById("logs")
 };
+
+/** @type {() => "cover" | "contain" | "fill"} */
+function getSelectedFit() {
+  const v = ui.videoFit.value;
+  if (v === "contain" || v === "fill") return v;
+  return "cover";
+}
+
+function playLocalPreview() {
+  if (!localVideoTrack) return;
+  localVideoTrack.play("local-player", { fit: getSelectedFit() });
+}
 
 const extension = new VirtualBackgroundExtension();
 AgoraRTC.registerExtensions([extension]);
@@ -82,7 +95,7 @@ ui.startCamera.addEventListener("click", async () => {
     }
 
     localVideoTrack = await AgoraRTC.createCameraVideoTrack();
-    localVideoTrack.play("local-player");
+    playLocalPreview();
 
     await ensureProcessorReady();
     setState();
@@ -189,6 +202,13 @@ ui.stopCamera.addEventListener("click", async () => {
     log("Camera stopped");
   } catch (err) {
     log(`Failed to stop camera: ${err.message || err}`);
+  }
+});
+
+ui.videoFit.addEventListener("change", () => {
+  playLocalPreview();
+  if (localVideoTrack) {
+    log(`Video fit: ${getSelectedFit()}`);
   }
 });
 
